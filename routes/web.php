@@ -10,3 +10,6 @@ Route::post('/authors', [YourController1::class, 'store']);
 Route::get('/delete/{name}', [YourController1::class, 'remove']);
 Route::get('/edit/{name}', [YourController1::class, 'edit']); // Change this to a GET request
 Route::put('/process-edit/{name}', [YourController1::class, 'processEdit'])->name('process.edit');
+Route::get('/weather-chart', function () {
+    return view('weather-chart');
+})->name('weather-chart');
