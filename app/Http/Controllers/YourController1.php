@@ -61,7 +61,7 @@ class YourController1 extends Controller
         return redirect('/')->with('status', 'Author deleted successfully!');
     }
 
-    // Add the edit method to edit an Author by name
+    
     public function edit($name)
     {
         $author = Author::where('name', $name)->first();
@@ -73,7 +73,7 @@ class YourController1 extends Controller
         return view('edit', compact('author'));
     }
 
-    // Add the processEdit method to update an Author by name
+    
     public function processEdit(Request $request, $name)
     {
         $author = Author::where('name', $name)->first();

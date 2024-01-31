@@ -33,7 +33,7 @@
                 <label for="author">Authors:</label>
                 <input type="text" name="author" class="form-control" value="{{ $author->author }}" required>
             </div>
-            <button type="submit" class="btn btn-primary">Rediget</button>
+            <button type="submit" class="btn btn-primary">Accept changes</button>
         </form>
     </div>
 
