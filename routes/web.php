@@ -13,3 +13,5 @@ Route::put('/process-edit/{name}', [YourController1::class, 'processEdit'])->nam
 Route::get('/weather-chart', function () {
     return view('weather-chart');
 })->name('weather-chart');
+Route::get('/', [YourController1::class,'index'])->name('/');
+
