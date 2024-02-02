@@ -101,5 +101,3 @@ class YourController1 extends Controller
         return redirect('/')->with('success', 'Author updated successfully!');
     }
 }
-
-

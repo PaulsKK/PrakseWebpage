@@ -9,94 +9,85 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Web</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('/') }}" target="_blank">Home</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="weather-chart">Weather chart <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Pricing</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Blog</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-    <style>
-        canvas {
-            width: 400px;
-            height: 200px;
-        }
-    </style>
 </head>
 <body>
-    <h1>Weather Line Chart</h1>
-    <canvas id="weatherLineChart"></canvas>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Web</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('/') }}" target="_blank">Home</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="weather-chart">Weather chart <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Pricing</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Blog</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Weather Line Chart</h1>
+        <canvas id="weatherLineChart" width="400" height="200"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <script>
-        document.addEventListener("DOMContentLoaded", async function() {
-            const ctx = document.getElementById('weatherLineChart').getContext('2d');
-            const apiKey = '261d4c8305f6693860e215b6d31c4701';
-            const city = 'Valmiera';
-            const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}`;
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('weatherLineChart').getContext('2d');
+        const labels = {!! json_encode($data['labels']) !!};
+        const temperaturesKelvin = {!! json_encode($data['temperatures']) !!};
 
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
+        const temperaturesCelsius = temperaturesKelvin.map(tempK => tempK - 273.15);
 
-                const labels = data.list.map(item => new Date(item.dt * 1000).toLocaleDateString());
-                const temperatures = data.list.map(item => item.main.temp - 273.15); 
+        const weatherData = {
+            labels: labels,
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: temperaturesCelsius,
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0, 0, 255, 0.2)',
+                fill: true
+            }]
+        };
 
-                const weatherData = {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Temperature (°C)',
-                        data: temperatures,
-                        borderColor: 'blue',
-                        backgroundColor: 'rgba(0, 0, 255, 0.2)',
-                        fill: true
-                    }]
-                };
-
-                const config = {
-                    type: 'line',
-                    data: weatherData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        scales: {
-                            x: { 
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: 'Date'
-                                }
-                            },
-                            y: { 
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: 'Temperature (°C)'
-                                }
-                            }
+        const config = {
+            type: 'line',
+            data: weatherData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Temperature (°C)'
                         }
                     }
-                };
-
-                new Chart(ctx, config);
-
-            } catch (error) {
-                console.error('Error fetching weather data:', error);
+                }
             }
-        });
-    </script>
+        };
+
+        new Chart(ctx, config);
+    });
+</script>
 </body>
 </html>
