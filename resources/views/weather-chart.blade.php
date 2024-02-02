@@ -47,19 +47,41 @@
         const ctx = document.getElementById('weatherLineChart').getContext('2d');
         const labels = {!! json_encode($data['labels']) !!};
         const temperaturesKelvin = {!! json_encode($data['temperatures']) !!};
-
+        const precipitation = {!! json_encode($data['precipitation']) !!};
         const temperaturesCelsius = temperaturesKelvin.map(tempK => tempK - 273.15);
+        const windSpeed = {!! json_encode($data['wind_Speed']) !!};
+        const humidity = {!! json_encode($data['humidity']) !!};
+        
 
         const weatherData = {
-            labels: labels,
-            datasets: [{
-                label: 'Temperature (°C)',
-                data: temperaturesCelsius,
-                borderColor: 'blue',
-                backgroundColor: 'rgba(0, 0, 255, 0.2)',
-                fill: true
-            }]
-        };
+    labels: labels,
+    datasets: [{
+        label: 'Temperature (°C)',
+        data: temperaturesCelsius,
+        borderColor: 'blue',
+        backgroundColor: 'rgba(0, 0, 255, 0.2)',
+        fill: true
+    }, {
+        label: 'Precipitation (mm)',
+        data: precipitation,
+        borderColor: 'green',
+        backgroundColor: 'rgba(0, 255, 0, 0.2)',
+        fill: true
+    }, {
+        label: 'Wind Speed (m/s)',
+        data: windSpeed,
+        borderColor: 'purple',
+        backgroundColor: 'rgba(128, 0, 128, 0.2)',
+        fill: true
+    }, {
+        label: 'Humidity (%)',
+        data: humidity,
+        borderColor: 'yellow',
+        backgroundColor: 'rgba(255, 200, 10, 0.2)',
+        fill: true
+    }]
+};
+
 
         const config = {
             type: 'line',
@@ -68,26 +90,28 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 scales: {
-                    x: {
+                    xAxes: [{
                         display: true,
-                        title: {
+                        scaleLabel: {
                             display: true,
-                            text: 'Date'
+                            labelString: 'Date'
                         }
-                    },
-                    y: {
+                    }],
+                    yAxes: [{
                         display: true,
-                        title: {
+                        scaleLabel: {
                             display: true,
-                            text: 'Temperature (°C)'
+                            labelString: 'Temperature (°C) / Precipitation (mm)/ Wind Speed (m/s)/ Humidity (%)'
                         }
-                    }
+                    }]
                 }
+
             }
         };
 
         new Chart(ctx, config);
     });
 </script>
+
 </body>
 </html>

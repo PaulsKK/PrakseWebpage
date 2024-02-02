@@ -19,13 +19,19 @@ class WeatherController extends Controller
 
         $labels = [];
         $temperatures = [];
+        $precipitation =[];
+        $wind_Speed =[];
+        $humidity = [];
 
         foreach ($data['list'] as $weatherData) {
-            $labels[] = date('Y-m-d H:i:s', $weatherData['dt']);
+            $labels[] = date('d H:i', $weatherData['dt']);
             $temperatures[] = $weatherData['main']['temp'];
+            $precipitation[] = $weatherData['rain']['3h']?? 0;
+            $wind_Speed[] = $weatherData['wind']['speed']?? 0;
+            $humidity[] = $weatherData['main']['humidity']??0;
         }
 
-        return view('weather-chart', ['data' => ['labels' => $labels, 'temperatures' => $temperatures]]);
+        return view('weather-chart', ['data' => ['labels' => $labels, 'temperatures' => $temperatures, 'precipitation'=> $precipitation, 'wind_Speed'=> $wind_Speed, 'humidity'=> $humidity ]]);
     } catch (\Exception $e) {
         return response()->json(['success' => false, 'message' => $e->getMessage()]);
     }
