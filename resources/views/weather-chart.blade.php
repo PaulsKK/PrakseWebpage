@@ -42,76 +42,102 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const ctx = document.getElementById('weatherLineChart').getContext('2d');
-        const labels = {!! json_encode($data['labels']) !!};
-        const temperaturesKelvin = {!! json_encode($data['temperatures']) !!};
-        const precipitation = {!! json_encode($data['precipitation']) !!};
-        const temperaturesCelsius = temperaturesKelvin.map(tempK => tempK - 273.15);
-        const windSpeed = {!! json_encode($data['wind_Speed']) !!};
-        const humidity = {!! json_encode($data['humidity']) !!};
-        
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('weatherLineChart').getContext('2d');
+    const labels = {!! json_encode($data['labels']) !!};
+    const temperaturesKelvin = {!! json_encode($data['temperatures']) !!};
+    const precipitation = {!! json_encode($data['precipitation']) !!};
+    const temperaturesCelsius = temperaturesKelvin.map(tempK => tempK - 273.15);
+    const windSpeed = {!! json_encode($data['wind_Speed']) !!};
+    const humidity = {!! json_encode($data['humidity']) !!};
 
-        const weatherData = {
-    labels: labels,
-    datasets: [{
-        label: 'Temperature (°C)',
-        data: temperaturesCelsius,
-        borderColor: 'blue',
-        backgroundColor: 'rgba(0, 0, 255, 0.2)',
-        fill: true
-    }, {
-        label: 'Precipitation (mm)',
-        data: precipitation,
-        borderColor: 'green',
-        backgroundColor: 'rgba(0, 255, 0, 0.2)',
-        fill: true
-    }, {
-        label: 'Wind Speed (m/s)',
-        data: windSpeed,
-        borderColor: 'purple',
-        backgroundColor: 'rgba(128, 0, 128, 0.2)',
-        fill: true
-    }, {
-        label: 'Humidity (%)',
-        data: humidity,
-        borderColor: 'yellow',
-        backgroundColor: 'rgba(255, 200, 10, 0.2)',
-        fill: true
-    }]
-};
+    const weatherData = {
+        labels: labels,
+        datasets: [{
+            label: 'Temperature (°C)',
+            data: temperaturesCelsius,
+            borderColor: 'blue',
+            backgroundColor: 'rgba(0, 0, 255, 0.2)',
+            fill: true
+        }, {
+            label: 'Precipitation (mm)',
+            data: precipitation,
+            borderColor: 'green',
+            backgroundColor: 'rgba(0, 255, 0, 0.2)',
+            fill: true
+        }, {
+            label: 'Wind Speed (m/s)',
+            data: windSpeed,
+            borderColor: 'purple',
+            backgroundColor: 'rgba(128, 0, 128, 0.2)',
+            fill: true
+        }, {
+            label: 'Humidity (%)',
+            data: humidity,
+            borderColor: 'yellow',
+            backgroundColor: 'rgba(255, 200, 0, 0.2)',
+            fill: true
+        }]
+    };
 
-
-        const config = {
-            type: 'line',
-            data: weatherData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    xAxes: [{
+    const config = {
+        type: 'line',
+        data: weatherData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                x: {
+                    display: true,
+                    title: {
                         display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Date'
-                        }
-                    }],
-                    yAxes: [{
+                        text: 'Date'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
                         display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Temperature (°C) / Precipitation (mm)/ Wind Speed (m/s)/ Humidity (%)'
-                        }
-                    }]
+                        text: 'Temperature (°C) / Precipitation (mm)/ Wind Speed (m/s)'
+                    }
                 }
-
+            },
+            plugins: {
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
             }
-        };
+        }
+    };
 
-        new Chart(ctx, config);
-    });
+    const chart = new Chart(ctx, config);
+
+
+    document.getElementById('weatherLineChart').addEventListener('mousemove', onHover);
+    document.getElementById('weatherLineChart').addEventListener('mouseleave', onLeave);
+
+    function onHover(event) {
+        const activePoints = chart.getElementsAtEventForMode(event, 'nearest', { intersect: false });
+
+        if (activePoints.length > 0) {
+            const dataIndex = activePoints[0].index;
+
+            chart.tooltip.setActiveElements([{ datasetIndex: 0, index: dataIndex }]);
+            chart.tooltip.update();
+            chart.draw();
+        }
+    }
+
+    function onLeave() {
+        chart.tooltip.setActiveElements([]);
+        chart.tooltip.update();
+        chart.draw();
+    }
+});
 </script>
+
 
 </body>
 </html>
