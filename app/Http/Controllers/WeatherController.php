@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -24,7 +23,7 @@ class WeatherController extends Controller
             $humidity = [];
 
             foreach ($data['list'] as $weatherData) {
-                $labels[] = date('d H:i:', $weatherData['dt']);
+                $labels[] = date('d H:i', $weatherData['dt']);
                 $temperatures[] = $weatherData['main']['temp'];
                 $precipitation[] = $weatherData['rain']['3h'] ?? 0;
                 $wind_Speed[] = $weatherData['wind']['speed'] ?? 0;

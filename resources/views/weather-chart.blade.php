@@ -12,7 +12,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-
+        <!-- Navbar content here -->
     </nav>
 
     <div class="container">
@@ -24,7 +24,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-<script>
+    <script>
     document.addEventListener('DOMContentLoaded', function () {
         const ctx = document.getElementById('weatherLineChart').getContext('2d');
         const labels = {!! json_encode($data->data[0]['labels']) !!};
@@ -56,7 +56,8 @@
                     data: temperatureReadings,
                     borderColor: 'blue',
                     backgroundColor: 'rgba(0, 0, 255, 0.2)',
-                    fill: true
+                    fill: true,
+                    temperature: temperatures
                 },
                 {
                     label: 'precipitation(mm)',
@@ -105,22 +106,37 @@
                 },
                 plugins: {
                     tooltip: {
-                        mode: 'nearest',
+                        enabled: true,
+                        mode: 'index',
                         intersect: false,
+                        position: 'nearest', 
                         callbacks: {
                             title: function (context) {
                                 return 'Weather Data';
                             },
-                            label: function (context) {
-                                const dataIndex = context.dataIndex;
-                                const temperature = temperatures[dataIndex];
-                                const windSpeed = windSpeedReadings[dataIndex];
-                                const precipitation = precipitationReadings[dataIndex];
-                                const humidity = humidityReadings[dataIndex];
-                                return `Temperature: ${temperature.toFixed(2)}°C,
-                                         Wind Speed: ${windSpeed.toFixed(2)} m/s,
-                                         Precipitation: ${precipitation.toFixed(2)}mm,
-                                         humidity: ${humidity.toFixed(2)}%`;
+                            label: function (tooltipItem, data) {
+                                const dataIndex = tooltipItem.dataIndex;
+                                let label = '';
+
+                                
+                                switch (tooltipItem.datasetIndex) {
+                                    case 0: 
+                                        label = `Temperature: ${getTemperatureValue(dataIndex)}°C`;
+                                        break;
+                                    case 1: 
+                                        label = `Precipitation: ${getPrecipitationValue(dataIndex)}mm`;
+                                        break;
+                                    case 2: 
+                                        label = `Humidity: ${getHumidityValue(dataIndex)}%`;
+                                        break;
+                                    case 3: 
+                                        label = `Wind Speed: ${getWindSpeedValue(dataIndex)}m/s`;
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                return label;
                             }
                         }
                     }
@@ -150,7 +166,24 @@
             chart.tooltip.update();
             chart.draw();
         }
+
+        function getTemperatureValue(index) {
+            return weatherData.datasets[0].temperature[index].toFixed(2);
+        }
+
+        function getWindSpeedValue(index) {
+            return weatherData.datasets[3].data[index].toFixed(2);
+        }
+
+        function getPrecipitationValue(index) {
+            return weatherData.datasets[1].data[index].toFixed(2);
+        }
+
+        function getHumidityValue(index) {
+            return weatherData.datasets[2].data[index].toFixed(2);
+        }
     });
 </script>
+
 </body>
 </html>
