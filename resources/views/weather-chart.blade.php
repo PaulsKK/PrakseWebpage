@@ -8,47 +8,37 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://cdn.jsdelivr.net/npm/places.js@1"></script>
 </head>
 <body>
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Web</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{{ route('/') }}" target="_blank">Home</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">Weather chart <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Pricing</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Blog</a>
-                    </li>
-                    <div class="input-group input-group-lg">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Large</span>
-                    </div>
-                    <input type="text" class="form-control" aria-label="Large" value="Right Aligned Button" aria-describedby="inputGroup-sizing-sm">
-                    </div>
-                </ul>
-            </div>
-        </nav>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Web</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ route('/') }}" target="_blank">Home</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Weather chart <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Pricing</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Blog</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
     <style>
         #map { height: 700px; }
         .chart-container { position: relative; height:40vh; width:100vw; } 
         #locationName { text-align: left; margin-bottom: 20px; margin-left: 20px; }
     </style>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <!-- Navbar content here -->
-    </nav>
 
     <div id="locationName"></div> 
 
@@ -65,6 +55,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         var map = L.map('map', {
@@ -83,6 +74,8 @@
         L.control.zoom({
             position: 'bottomright'
         }).addTo(map);
+
+        var geocoder = L.Control.geocoder().addTo(map);
 
         navigator.geolocation.watchPosition(success, error);
 
@@ -130,6 +123,18 @@
                     const displayName = locationInfo.display_name;
 
                     document.getElementById('locationName').innerText = displayName;
+
+                   
+                    const address = {
+                        city: locationInfo.address.city || locationInfo.address.town || locationInfo.address.village || locationInfo.address.hamlet || locationInfo.address.county || '',
+                        state: locationInfo.address.state || locationInfo.address.region || '',
+                        country: locationInfo.address.country || '',
+                    };
+
+                    
+                    const addressLabel = `${address.city}, ${address.state}, ${address.country}`;
+                    chart.data.labels = [addressLabel];
+                    chart.update();
                 })
                 .catch(error => {
                     console.error('Error fetching location information:', error);
@@ -172,10 +177,11 @@
                 .catch(error => {
                     console.error('Error fetching weather data:', error);
                 });
+
             if (marker) {
-                map.removeLayer(marker);
-            }
-            marker = L.marker([lat, lng]).addTo(map);
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng]).addTo(map); 
         }
 
         map.on('click', pickLocation);
@@ -220,7 +226,7 @@
                 data: weatherData,
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, // Set to false to allow width adjustment
+                    maintainAspectRatio: false, 
                     scales: {
                         x: {
                             display: true,
